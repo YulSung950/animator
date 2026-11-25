@@ -1,0 +1,496 @@
+/* All styling for the Animator app. Its code only attaches class names. */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+
+/* ── Layout: two columns ─────────────────────────────────────────────────── */
+
+.app {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background: #1a1a2e;
+  color: #d4c5a0;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+}
+
+/* Left column: the code editor. */
+.code-col {
+  width: 42%;
+  min-width: 320px;
+  max-width: 720px;
+  flex-shrink: 0;
+  display: flex;
+  border-right: 1px solid #3a3a5e;
+  background: #0f0f1e;
+}
+
+/* The code column stays in the DOM when collapsed, so CodeMirror keeps its
+   state; hiding it gives the right column the full width. */
+.app.code-hidden .code-col { display: none; }
+
+/* A small emoji button (the code pane's collapse toggle, and the playback
+   controls once they exist). */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a4a;
+  color: #d4c5a0;
+  border: 1px solid #4a4a8a;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 5px 8px;
+}
+.icon-btn:hover { background: #3a3a5e; }
+
+/* ── Code panel (left column) ───────────────────────────────────────────── */
+
+.code-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #1a1a3e;
+  border-bottom: 1px solid #3a3a5e;
+}
+.code-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+.code-title {
+  color: #e8d8b0;
+  font-family: 'Georgia', serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+/* Library menu beside “draw code” (drawing-select option 1). */
+.drawing-select {
+  min-width: 0;
+  max-width: 100%;
+  flex: 1;
+  appearance: none;
+  background: #0f0f1e
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23b8a888' d='M1 1l5 5 5-5'/%3E%3C/svg%3E")
+    no-repeat right 8px center;
+  color: #e8d8b0;
+  border: 1px solid #4a4a8a;
+  border-radius: 4px;
+  padding: 4px 28px 4px 10px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  cursor: pointer;
+}
+.drawing-select:hover,
+.drawing-select:focus {
+  border-color: #6a6aaa;
+  outline: none;
+}
+.drawing-select option {
+  background: #1a1a3e;
+  color: #e8d8b0;
+}
+
+/* Wrapper holding the editor. */
+.code-editor-wrap {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+}
+/* CodeMirror mount node: grows to fill the panel. */
+.code-editor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+  background: #0d0d1a;
+}
+.code-editor .cm-editor { width: 100%; height: 100%; }
+
+/* Collapsible reference of the built-ins available to draw functions. */
+.reference {
+  margin: 8px 14px 0;
+  border: 1px solid #3a3a5e;
+  border-radius: 4px;
+  background: #0d0d1a;
+  overflow: hidden;
+}
+.reference-summary {
+  padding: 6px 12px;
+  cursor: pointer;
+  color: #b8a888;
+  font-family: monospace;
+  font-size: 12px;
+  user-select: none;
+}
+.reference-summary:hover { color: #e8d8b0; }
+.reference-body {
+  padding: 4px 12px 10px;
+  border-top: 1px solid #3a3a5e;
+}
+.reference-group { margin-top: 8px; }
+.reference-group-title {
+  color: #8a8aca;
+  font-family: monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.reference-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 1px 0;
+}
+.reference-sig {
+  color: #89ddff;
+  font-family: monospace;
+  font-size: 12px;
+  white-space: pre;
+}
+.reference-desc { color: #6a7a8a; font-size: 11px; }
+
+/* ── Animation area (right column) ──────────────────────────────────────── */
+
+.canvas-area {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+  background: #0a0a14;
+}
+
+/* Canvas + error overlay; square sizing uses this box as the container. */
+.canvas-stage {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: size;
+}
+
+/* The interpreter's List(Path) (or its error), shown as text before the
+   animation pane is built. */
+.output {
+  align-self: stretch;
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #cfe3ff;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+/* Leave room for the reveal button, which only overlays this pane while the
+   code column is hidden. */
+.app.code-hidden .output { padding-top: 48px; }
+
+/* Button that reveals the code column again when it is hidden. */
+.reveal-code {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+}
+
+/* A centred square that fits the (possibly non-square) animation area. Give your
+   <canvas> this class, so that drawings aren't stretched. */
+.canvas {
+  width: min(100cqw, 100cqh);
+  height: min(100cqw, 100cqh);
+}
+
+/* Dim the last successful drawing while an error overlay is up — keep it
+   readable under the toast (mockup: previous animation stays underneath). */
+.canvas-area.has-error .canvas {
+  opacity: 0.72;
+  transition: opacity 0.15s ease;
+}
+
+/* Under-canvas control strip (Q2 option 1): Shape + bipolar Speed. */
+.control-strip {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 16px 12px;
+  border-top: 1px solid #3a3a5e;
+  background: #12122a;
+}
+
+.control-row {
+  display: grid;
+  grid-template-columns: 52px 1fr 56px;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-row-speed {
+  align-items: start;
+}
+
+.control-label {
+  color: #b8a888;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.control-slider {
+  width: 100%;
+  accent-color: #8a8aca;
+  cursor: pointer;
+}
+
+.speed-track-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.speed-legend {
+  color: #6a7a8a;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  text-align: center;
+  user-select: none;
+}
+
+.control-value {
+  color: #e8d8b0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  text-align: right;
+  tabular-nums: true;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Canvas overlay toast (error UI option 2) — covers stage only, not strip. */
+.error-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.error-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  /* Light dimmer so the last drawing remains visible under the toast. */
+  background: rgba(6, 6, 14, 0.18);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.error-toast {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  max-width: min(420px, 85%);
+  padding: 18px 20px 14px;
+  border-radius: 8px;
+  border: 1px solid #5a3a4a;
+  background: rgba(28, 16, 24, 0.92);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  color: #f0d8de;
+}
+
+.error-toast-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin-bottom: 8px;
+  color: #ffb4c0;
+}
+
+.error-toast-msg {
+  margin: 0 0 12px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12.5px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #e8c8d0;
+}
+
+.error-toast-dismiss {
+  appearance: none;
+  border: 1px solid #6a4a5a;
+  background: #3a2430;
+  color: #f0d8de;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.error-toast-dismiss:hover {
+  background: #4a3040;
+}
+
+
+/* ── Extensions: Mirror duel + Music sync ───────────────────────────────── */
+
+.duel-hud {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  pointer-events: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #4a6a8a;
+  background: rgba(12, 18, 32, 0.82);
+  color: #cfe8ff;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.duel-hud-label {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.duel-hud-win {
+  border-color: #3d9a68;
+  background: rgba(10, 36, 24, 0.9);
+  color: #7dffb0;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 18px;
+}
+
+.duel-hud-lose {
+  border-color: #a05050;
+  background: rgba(40, 14, 18, 0.9);
+  color: #ff8a8a;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 18px;
+}
+
+.duel-hud-crash {
+  border-color: #a07840;
+  background: rgba(36, 24, 10, 0.9);
+  color: #ffc078;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 18px;
+}
+
+.control-row-ext {
+  grid-template-columns: 52px 1fr 56px;
+}
+
+.ext-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ext-btn {
+  appearance: none;
+  border: 1px solid #4a4a8a;
+  background: #2a2a4a;
+  color: #d4c5a0;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  line-height: 1.2;
+}
+.ext-btn:hover:not(:disabled) {
+  background: #3a3a5e;
+}
+.ext-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.ext-btn-on {
+  border-color: #6a9aca;
+  background: #2a3a5a;
+  color: #d0e8ff;
+}
+
+.ext-hint {
+  color: #8a9aaa;
+  font-size: 11px;
+}
+
+.music-controls {
+  gap: 8px;
+}
+
+.music-sens-label {
+  color: #8a9aaa;
+  font-size: 11px;
+}
+
+.music-sens {
+  max-width: 90px;
+  flex: 1;
+  min-width: 60px;
+}
+
+.ext-file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #4a4a8a;
+  background: #2a2a4a;
+  color: #d4c5a0;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.ext-file-label:hover {
+  background: #3a3a5e;
+}
+.ext-file-input {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.control-row-music .ext-controls {
+  align-items: center;
+}
